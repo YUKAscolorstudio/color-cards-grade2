@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>慣用色名カード 2級 | YUKA's Color Studio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>* { margin: 0; padding: 0; box-sizing: border-box; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useEffect } = React;
+
+const colors = [
+  // 和名 31色
+  { name: "鴇色", reading: "ときいろ", hex: "#F0A0A0", systematic: "明るい紫みの赤", munsell: "7RP 7.5/8", origin: "和名", category: "赤・ピンク系", episode: "トキの翼の内側や風切羽、尾羽などの明るいピンク。近世和装で流行した色名。" },
+  { name: "韓紅花", reading: "からくれない", hex: "#C0002A", systematic: "あざやかな赤", munsell: "1.5R 5.5/13", origin: "和名", category: "赤・ピンク系", episode: "中国から渡来した紅花の赤を「呉藍（くれない）」と呼んだことに由来。王朝貴族に愛された紅の色。" },
+  { name: "蘇芳", reading: "すおう", hex: "#7A2040", systematic: "くすんだ赤", munsell: "4R 4/7", origin: "和名", category: "赤・ピンク系", episode: "マメ科植物スオウの心材を煎じて染めた色。奈良時代にすでに日本に渡来していた染料。" },
+  { name: "鳶色", reading: "とびいろ", hex: "#7A3020", systematic: "暗い黄みの赤", munsell: "7.5R 3.5/5", origin: "和名", category: "赤・ピンク系", episode: "トビ（鳶）の羽の色。鴇色に次いで古い色名で、江戸時代前期から茶色染色の色名として使用。" },
+  { name: "海老茶", reading: "えびちゃ", hex: "#6B1A20", systematic: "暗い黄みの赤", munsell: "8R 3/4.5", origin: "和名", category: "赤・ピンク系", episode: "葡萄の古名を「えび」といった。近世に葡萄を「えび」とは読まなくなり、海老の字が当てられた。" },
+  { name: "弁柄色", reading: "べんがらいろ", hex: "#8A3020", systematic: "暗い黄みの赤", munsell: "8R 3.5/7", origin: "和名", category: "赤・ピンク系", episode: "インド半島北東部のベンガル地方産の天然酸化鉄からつくった赤褐色。江戸時代に広く使用。" },
+  { name: "黄丹", reading: "おうに", hex: "#E86020", systematic: "つよい黄赤", munsell: "10R 6/12", origin: "和名", category: "黄・橙系", episode: "古代に皇太子の礼服の色と定められた禁色。紅花とチナシで染めた鮮やかなオレンジ色。" },
+  { name: "柑子色", reading: "こうじいろ", hex: "#F08030", systematic: "明るい黄赤", munsell: "5.5YR 7.5/9", origin: "和名", category: "黄・橙系", episode: "コウジミカンの実の色を表す平安時代からの伝統色。日本語の黄赤を代表する古い色名。" },
+  { name: "琥珀色", reading: "こはくいろ", hex: "#A06820", systematic: "くすんだ赤みの黄", munsell: "8YR 5.5/6.5", origin: "和名", category: "黄・橙系", episode: "植物の樹脂が化石になった琥珀の色。古名は赤玉、または「くはく」。酒類の色を形容するときに使われる。" },
+  { name: "朽葉色", reading: "くちばいろ", hex: "#A87848", systematic: "灰みの赤みを帯びた黄", munsell: "10YR 5/2", origin: "和名", category: "黄・橙系", episode: "朽ちた落ち葉のような色。赤みがあれば赤朽葉、黄みは黄朽葉、緑みは青朽葉と呼び分けた。" },
+  { name: "鬱金色", reading: "うこんいろ", hex: "#E8B820", systematic: "つよい黄", munsell: "2Y 7.5/12", origin: "和名", category: "黄・橙系", episode: "ショウガ科のウコンの根で染めた黄色。カレー粉の原料としても知られる。漬物の沢庵の着色にも。" },
+  { name: "刈安色", reading: "かりやすいろ", hex: "#D8C860", systematic: "うすい緑みの黄", munsell: "7Y 8.5/7", origin: "和名", category: "黄・橙系", episode: "奈良時代から黄の染色に使われたイネ科の刈安草に由来。単独で黄を染め、緑の下染めにも使用。" },
+  { name: "黄檗色", reading: "きはだいろ", hex: "#C8A820", systematic: "明るい黄緑", munsell: "9Y 8/8", origin: "和名", category: "黄・橙系", episode: "ミカン科の樹木キハダの樹皮で染めた色。防虫効果があり奈良時代の染め紙や写経に使用。" },
+  { name: "代赭", reading: "たいしゃ", hex: "#A05030", systematic: "くすんだ黄赤", munsell: "2.5YR 5/8.5", origin: "和名", category: "茶系", episode: "天然の土からつくる絵の具の原料。東洋では中国山省代州産の赭土（あかつち）が有名で、その土の酸化鉄を使った絵の具を代赭色と呼んだ。やがて代赭は一般的な酸化鉄を使った絵の具の通称になった。" },
+  { name: "桧皮色", reading: "ひわだいろ", hex: "#6B3818", systematic: "暗い灰みの黄赤", munsell: "1YR 4.3/4", origin: "和名", category: "茶系", episode: "桧の樹皮のような茶色。黒みある蘇芳染めの色名ともいわれる平安時代からの伝統色。" },
+  { name: "鶸色", reading: "ひわいろ", hex: "#B8C820", systematic: "つよい黄緑", munsell: "1GY 7.5/8", origin: "和名", category: "緑系", episode: "黄緑色をした小鳥ヒワの羽の色。カナリヤが渡来する前は唯一の黄色い鳥として金翅雀色とも書かれた。" },
+  { name: "海松色", reading: "みるいろ", hex: "#608040", systematic: "暗い灰みの黄緑", munsell: "9.5Y 4.5/2.5", origin: "和名", category: "緑系", episode: "海藻ミルの色。万葉集に歌が出るほど古くから知られた伝統色。中世以降はオリーブグリーンの色あいを表す。" },
+  { name: "常磐色", reading: "ときわいろ", hex: "#306840", systematic: "こい緑", munsell: "3G 4.5/7", origin: "和名", category: "緑系", episode: "松や杉といった常緑樹の葉の色。永久に変わらない色として美称に用いられた。英語のエバーグリーンの同類。" },
+  { name: "緑青色", reading: "ろくしょういろ", hex: "#407060", systematic: "くすんだ緑", munsell: "4G 5/4", origin: "和名", category: "緑系", episode: "石緑（せきりょく）、孔雀石からつくられる緑色の顔料。炭酸銅・水酸化銅などを主成分とする銅の錆の緑色。" },
+  { name: "鉄色", reading: "てついろ", hex: "#204840", systematic: "ごく暗い青緑", munsell: "2.5BG 2.5/2.5", origin: "和名", category: "緑系", episode: "焼いた鉄の肌のような暗い緑みの青。江戸後期に緑みのある青の鉄紺などの鉄を修飾語にした染色が流行。" },
+  { name: "新橋色", reading: "しんばしいろ", hex: "#40B0A8", systematic: "明るい緑みの青", munsell: "2.5B 6.5/5.5", origin: "和名", category: "青系", episode: "明治末から大正にかけて流行した東京・新橋の芸者衆が好んだ着物の色。新しい化学染料をいち早く取り入れた。" },
+  { name: "納戸色", reading: "なんどいろ", hex: "#306880", systematic: "つよい緑みの青", munsell: "4B 4/6", origin: "和名", category: "青系", episode: "納戸（物置部屋）の暗がりの色。江戸時代の代表的な藍染めの青の色名。「御納戸色」ともいう。" },
+  { name: "甕覗き", reading: "かめのぞき", hex: "#A8D8C8", systematic: "やわらかい緑みの青", munsell: "4.5B 7/4", origin: "和名", category: "青系", episode: "糸や布が藍がめをちょっとのぞいただけという意味。ごく薄い藍染めの青。中世は薄い藍色を一入染といった。" },
+  { name: "縹色", reading: "はなだいろ", hex: "#3080A0", systematic: "つよい青", munsell: "3PB 4/7.5", origin: "和名", category: "青系", episode: "藍染めの代表的な青を表す色名。奈良時代からの古い色名。中世は花田とも書き、近世には花色になった。" },
+  { name: "藤色", reading: "ふじいろ", hex: "#9090C8", systematic: "明るい青みの紫", munsell: "10PB 6.5/6.5", origin: "和名", category: "紫系", episode: "藤の花房の色からとられた藤色は明るい青紫を表す伝統色。清少納言の「枕草子」にも「めでたきもの」として登場。" },
+  { name: "江戸紫", reading: "えどむらさき", hex: "#602880", systematic: "こい青みの紫", munsell: "3P 3.5/7", origin: "和名", category: "紫系", episode: "紫を染める紫草は武蔵野によく知られた。江戸っ子自慢の色で、歌舞伎の狂歌や川柳にも登場する伝統的な京紫より青みのある紫。" },
+  { name: "古代紫", reading: "こだいむらさき", hex: "#806090", systematic: "くすんだ紫", munsell: "7.5P 4/6", origin: "和名", category: "紫系", episode: "江戸紫のような近世の紫は今紫。それに対して伝統的な昔ながらの紫を古代紫と称した。近代に生まれた色名。" },
+  { name: "銀鼠", reading: "ぎんねず", hex: "#C0C0B8", systematic: "明るい灰色", munsell: "N6.5", origin: "和名", category: "白・灰・黒系", episode: "銀は「しろがね」と呼ばれ白の美称。白に近い灰色の色名で江戸時代の無彩色の代表。昔からグレイの不吉なイメージを鼠と呼ぶことで粋な流行色に変えた。" },
+  { name: "茶鼠", reading: "ちゃねずみ", hex: "#B09080", systematic: "黄赤みの灰色", munsell: "5YR 6/1", origin: "和名", category: "白・灰・黒系", episode: "華美を禁じられた江戸時代に四十八茶百鼠として大流行した粋とされた色。系統色名では黄赤みの灰色。" },
+  { name: "利休鼠", reading: "りきゅうねずみ", hex: "#A0A890", systematic: "緑みの灰色", munsell: "2.5G 5/1", origin: "和名", category: "白・灰・黒系", episode: "千利休好みの色とされる。利休は緑みのある色の修飾語となり、利休とつく色はすべて渋い緑みの色。" },
+  { name: "煤竹色", reading: "すすたけいろ", hex: "#806040", systematic: "赤みを帯びた黄みの暗い灰色", munsell: "9.5YR 3.5/1.5", origin: "和名", category: "茶系", episode: "煤けて赤黒くなった竹のような色。青竹や若竹を囲炉裏の煙で燻した煤竹が由来。近世初期にすでに登場。" },
+  // 外来色名 32色
+  { name: "ローズピンク", reading: "Rose pink", hex: "#F08090", systematic: "明るい紫みの赤", munsell: "10RP 7/8", origin: "洋名", category: "赤・ピンク系", episode: "バラのようなピンク色のバラにちなむ色名。花の名からとられた英語の色名として最古のもの。JISにはローズレッドという色名もある。" },
+  { name: "バーガンディー", reading: "Burgundy", hex: "#4A0010", systematic: "ごく暗い紫みの赤", munsell: "10RP 2/2.5", origin: "洋名", category: "赤・ピンク系", episode: "フランスのブルゴーニュ産の赤ワインのような色を表す色名。バーガンディーはブルゴーニュの英語名。色名の誕生は1915年と新しい。" },
+  { name: "オールドローズ", reading: "Old rose", hex: "#C07870", systematic: "やわらかい赤", munsell: "1R 6/6.5", origin: "洋名", category: "赤・ピンク系", episode: "イギリスのビクトリア朝で流行。オールドという形容から古い・昔のという連想でくすんだグレイッシュな色。つまりやくすんだ灰みのバラ色。" },
+  { name: "ポピーレッド", reading: "Poppy red", hex: "#E02020", systematic: "あざやかな赤", munsell: "4R 5/14", origin: "洋名", category: "赤・ピンク系", episode: "ポピーは日本語ではヒナゲシのこと。イギリスでは麦畑に自生するあふれた花らしい。赤い花が英語の色名として選ばれた。1705年が色名の起源といわれる。" },
+  { name: "マルーン", reading: "Maroon", hex: "#6A1020", systematic: "暗い赤", munsell: "5R 2.5/6", origin: "洋名", category: "赤・ピンク系", episode: "スペイン産の大粒の栗の名前がイタリア語でマローネ、フランス語でマロン、英語でマルーンという色名になった。栗の表皮の色のような茶色を表すチェスナットブラウンとは区別される。" },
+  { name: "テラコッタ", reading: "Terracotta", hex: "#C06840", systematic: "くすんだ黄みの赤", munsell: "7.5R 4.5/8", origin: "洋名", category: "茶系", episode: "イタリア語の「焼いた土」の意味。素焼きの陶器などの色。19世紀の終わり頃に英語の色名に取り入れられた比較的新しい色名。" },
+  { name: "バーントシェナ", reading: "Burnt sienna", hex: "#9A4020", systematic: "くすんだ黄赤", munsell: "10R 4.5/7.5", origin: "洋名", category: "茶系", episode: "イタリアのトスカナ地方の美しい土の採掘場。中心都市シエナの名前で呼ばれ、絵の具の原料として使用。その土を焼いた赤みある褐色絵の具。" },
+  { name: "ローシェンナ", reading: "Raw sienna", hex: "#C08040", systematic: "つよい黄赤", munsell: "4YR 5/9", origin: "洋名", category: "茶系", episode: "イタリアのトスカナ地方の土が由来。フレスコ画に重要な絵の具で、その色名がローシェンナ。ローは「そのまま」という意味。" },
+  { name: "タン", reading: "Tan", hex: "#C8A060", systematic: "くすんだ黄赤", munsell: "6YR 5/6", origin: "洋名", category: "茶系", episode: "カシ・ナラなどの樹皮から採取したタンニン酸を含み、獣皮をなめすのに使用。そのなめし革がタン革であり、その色がタンと呼ばれた。16世紀には英語の色名として記録されている。" },
+  { name: "エクルベイジュ", reading: "Ecru beige", hex: "#D4C090", systematic: "うすい赤みの黄", munsell: "7.5YR 8.5/4", origin: "洋名", category: "黄・橙系", episode: "エクルもベイジュもフランス語。エクルは「さらしていない」「生」の意。ベイジュも未加工の羊毛のような色のことで、二つあわせても生成りの色ということ。19世紀にファッションカラーになった。" },
+  { name: "ゴールデンイエロー", reading: "Golden yellow", hex: "#E8A800", systematic: "つよい赤みの黄", munsell: "7.5YR 7/10", origin: "洋名", category: "黄・橙系", episode: "ルネサンス初期の絵画では聖人を表す光輪を金粉で描いた絵の具で描かれていた。黄金の輝きに黄の絵の具が使われた。16世紀頃に金色を感じさせる黄をこの名で呼ぶようになった。" },
+  { name: "アンバー", reading: "Amber", hex: "#B07820", systematic: "くすんだ赤みの黄", munsell: "8YR 5.5/6.5", origin: "洋名", category: "黄・橙系", episode: "琥珀のこと。この色が琥珀そのものからつくられたわけではなく、琥珀のような色のことをいう。16世紀末には英語の色名になっていた。日本の琥珀色よりはるかに古い宝石文化の違い。" },
+  { name: "バーントアンバー", reading: "Burnt umber", hex: "#703010", systematic: "ごく暗い赤みの黄", munsell: "10YR 3/3", origin: "洋名", category: "茶系", episode: "イタリアのウンブリア地方の英語名といわれる。トスカナと並んでウンブリアの土色が美しく、天然の顔料として西洋諸国で有名だった。その土を焼いて暗褐色にした絵の具の色。画家のパレットには欠かせないもの。" },
+  { name: "ローアンバー", reading: "Raw umber", hex: "#806020", systematic: "暗い黄", munsell: "2.5Y 4/6", origin: "洋名", category: "茶系", episode: "イタリアのウンブリア地方の土のこと。ローは「そのまま」という意味。その土の色あいが欧米各国で好まれるようになり英語の色名になった。特に英米では家の壁の色によく使われる。" },
+  { name: "ネープルスイエロー", reading: "Naples yellow", hex: "#F0C840", systematic: "つよい黄", munsell: "2.5Y 8/7.5", origin: "洋名", category: "黄・橙系", episode: "「ナポリの黄」という意味。ネープルスはイタリアのナポリの英語名。中世にはナポリで用いられていたこの黄の絵の具は、ナポリ湾岸のヴェスヴィアス火山の麓の鉛物からつくられたと信じられていた。" },
+  { name: "ジョンブリアン", reading: "Jaune brillant", hex: "#F8D840", systematic: "あざやかな黄", munsell: "5Y 8.5/14", origin: "洋名", category: "黄・橙系", episode: "フランス語で「輝かしい黄色」を意味する色名。中世にナポリの黄として知られた絵の具の代わりに新しい黄の絵の具がつくられるようになり、それにこの色名が与えられた。今は鮮やかな黄を示す。" },
+  { name: "シャトルーズグリーン", reading: "Chartreuse green", hex: "#C8D800", systematic: "明るい黄緑", munsell: "4GY 8/10", origin: "洋名", category: "緑系", episode: "フランスのシャトルーズ修道院でつくられたリキュールが色名の起源。このリキュールには黄色と緑色のものがあり、その緑色のような色を表す。色名はリキュールができた時代よりも新しく20世紀初頭の流行色。" },
+  { name: "グラスグリーン", reading: "Grass green", hex: "#608840", systematic: "くすんだ黄緑", munsell: "5GY 5/5", origin: "洋名", category: "緑系", episode: "英語の色名としては最古のものの一つ。8世紀以前にはすでに知られていたらしい。グラスは草の意味。日本語の草色は雑草の色だが、英語のグラスグリーンはどうやら牧草の色らしい。" },
+  { name: "ミントグリーン", reading: "Mint green", hex: "#A8D8B0", systematic: "明るい緑", munsell: "2.5G 7.5/8", origin: "洋名", category: "緑系", episode: "ミントとはハッカのこと。この色はハッカの油からつくった酒の色といわれている。西洋ハッカのペパーミントや緑ハッカのスペアミントといった色名もあるが、どちらも緑色を表す。すべて20世紀初頭の色名。" },
+  { name: "ボトルグリーン", reading: "Bottle green", hex: "#204820", systematic: "ごく暗い緑", munsell: "5G 2.5/3", origin: "洋名", category: "緑系", episode: "酒の輸送に使われる樽がガラスのボトルとコルク栓に変わったのは17世紀から。そのボトルには緑色のガラスが使用された。薬瓶などにも普及し緑色の瓶の色が色名になったのは19世紀初め。" },
+  { name: "ナイルブルー", reading: "Nile blue", hex: "#708898", systematic: "くすんだ青緑", munsell: "10BG 5.5/5", origin: "洋名", category: "青系", episode: "1880年代にナイル川の名前がつく色名が登場した。ナイルブルーが先で、その後ナイルグリーンが色名になった。ナイルが青や緑の川として美化されて記録されたのだろう。" },
+  { name: "リーフグリーン", reading: "Leaf green", hex: "#708040", systematic: "つよい黄緑", munsell: "3GY 4/7", origin: "洋名", category: "緑系", episode: "リーフは葉のこと、木の葉の緑という意味の色名。草色のグラスグリーンとともに自然の黄緑色を表すわかりやすい色名の代表的なもの。しかし草色ほど古くある色名ではなく19世紀の新しい名称とされている。" },
+  { name: "アップルグリーン", reading: "Apple green", hex: "#A0C840", systematic: "やわらかい黄みの緑", munsell: "10GY 8/5", origin: "洋名", category: "緑系", episode: "日本でリンゴといえば赤色だが、英語のアップルはグリーンの色名になっている。この色名が使われ始めた頃はリンゴといえば緑だったのだろう。絵画作品では青リンゴになっているものが多い。" },
+  { name: "マラカイトグリーン", reading: "Malachite green", hex: "#408860", systematic: "こい緑", munsell: "4G 4.5/9", origin: "洋名", category: "緑系", episode: "マラカイトは日本語で孔雀石と呼ばれる鉱石からつくられた緑色の顔料。古代エジプトではこの緑色が知られていて、エジプト人が目を守るまじないにこの緑色を目まわりに塗ったのがアイラインの始まりだという。" },
+  { name: "ピーコックグリーン", reading: "Peacock green", hex: "#309870", systematic: "あざやかな青緑", munsell: "7.5BG 4.5/9", origin: "洋名", category: "緑系", episode: "孔雀の羽の緑色のような色名。本来ピーコックはブルーの色名で16世紀の終わりから使用されていた。19世紀にグリーンも色名になったが、どちらで呼ぶのが正しいか決めることはできず現在はブルーとグリーン両方が用いられている。" },
+  { name: "セルリアンブルー", reading: "Cerulean blue", hex: "#4090A8", systematic: "あざやかな青", munsell: "9B 4.5/9", origin: "洋名", category: "青系", episode: "16世紀に英語の色名になった。セルリアンはスカイブルーの一種だった。ところが19世紀に錫酸コバルト化合物からつくられた美しい青の絵の具が工場生産されるようになり、その色にセルリアンブルーの色名が与えられた。" },
+  { name: "ミッドナイトブルー", reading: "Midnight blue", hex: "#181840", systematic: "ごく暗い紫みの青", munsell: "5PB 1.5/2", origin: "洋名", category: "青系", episode: "真夜中の青という意味。暗い紺色を表す商業的な色名として成功したもの。20世紀初めに登場した流行色で、それまでよく知られていたネービーブルーよりも暗い紺色の色名として広く用いられるようになった。" },
+  { name: "サックスブルー", reading: "Saxe blue", hex: "#6088A8", systematic: "くすんだ青", munsell: "1PB 5/4.5", origin: "洋名", category: "青系", episode: "ドイツ東部のザクセン州の英語名。「サクソン人の青」という意味。藍染めの名前として広く一般に用いられるようになり、主に繊維製品のための色名となった。" },
+  { name: "ウイスタリア", reading: "Wistaria", hex: "#8860A8", systematic: "あざやかな青紫", munsell: "10PB 5/12", origin: "洋名", category: "紫系", episode: "藤の英語名。19世紀末にこの色の化学染料ができたために出現した色名。同じ藤の花の色を語源とする色に藤色があるが、藤色は明るい青紫で、ウイスタリアは鮮やかな青紫で微妙に違う。" },
+  { name: "ライラック", reading: "Lilac", hex: "#C090C0", systematic: "やわらかい紫", munsell: "6P 7/6", origin: "洋名", category: "紫系", episode: "ライラックの花の色からとられた薄紫の色名。英語の色名として定着したのは1775年前後とされている。この時代は紫や赤紫の化学染料がまだ発見されていない。単にライラックの花のような色という一般的な色名だったと考えられる。" },
+  { name: "スレートグレイ", reading: "Slate grey", hex: "#607080", systematic: "暗い灰色", munsell: "2.5PB 3.5/0.5", origin: "洋名", category: "白・灰・黒系", episode: "西洋諸国で屋根の瓦として使われる粘板岩の薄板がスレート。この色名はグレイで暗い灰色を表すが、スレートのカラーにはほかにもブルー・ブラック・バイオレット・オリーブ・パープルなどいろいろバリエーションがある。" },
+  { name: "ランプブラック", reading: "Lamp black", hex: "#202020", systematic: "黒", munsell: "N1", origin: "洋名", category: "白・灰・黒系", episode: "人類が発見した真っ黒な黒色絵の具の原料は炭素そのもののような煤である。ランプブラックはランプの油を燃焼させてできた煤からとられた黒。炭素の黒のカーボンブラックの同類。昔からこれに勝る黒はなかなかほかには見つからなかった。" },
+];
+
+const CATEGORIES = ["すべて","赤・ピンク系","黄・橙系","緑系","青系","紫系","茶系","白・灰・黒系"];
+const ORIGINS = ["すべて","和名","洋名"];
+const STORAGE_KEY = "grade2_wrong_ids";
+
+function getLuma(hex){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;return 0.299*r+0.587*g+0.114*b;}
+function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+
+function App() {
+  const [idx,setIdx]=useState(0);
+  const [flipped,setFlipped]=useState(false);
+  const [cat,setCat]=useState("すべて");
+  const [origin,setOrigin]=useState("すべて");
+  const [mode,setMode]=useState("study"); // study / quiz / review
+  const [revealed,setRevealed]=useState(false);
+  const [animDir,setAnimDir]=useState(null);
+  const [wrongIds,setWrongIds]=useState(()=>{
+    try{const s=localStorage.getItem(STORAGE_KEY);return s?new Set(JSON.parse(s)):new Set();}catch{return new Set();}
+  });
+  const [quizResult,setQuizResult]=useState(null); // null / 'correct' / 'wrong'
+
+  useEffect(()=>{
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify([...wrongIds]));}catch{}
+  },[wrongIds]);
+
+  const baseList = mode==="review"
+    ? colors.filter(c=>wrongIds.has(c.name))
+    : colors.filter(c=>(cat==="すべて"||c.category===cat)&&(origin==="すべて"||c.origin===origin));
+
+  const list = baseList.length>0 ? baseList : colors;
+  const card = list[idx%list.length];
+
+  const dark=getLuma(card.hex)<0.42;
+  const tp=dark?"#fff":"#1a1208";
+  const ts=dark?"rgba(255,255,255,0.6)":"rgba(26,18,8,0.45)";
+  const gb=dark?"rgba(255,255,255,0.13)":"rgba(255,255,255,0.55)";
+  const gbd=dark?"rgba(255,255,255,0.18)":"rgba(255,255,255,0.8)";
+
+  const go=(d)=>{
+    setAnimDir(d>0?"left":"right");
+    setFlipped(false);setRevealed(false);setQuizResult(null);
+    setTimeout(()=>{setIdx(p=>(p+d+list.length)%list.length);setAnimDir(null);},180);
+  };
+
+  const changeFilter=(t,v)=>{t==="cat"?setCat(v):setOrigin(v);setIdx(0);setFlipped(false);setRevealed(false);setQuizResult(null);};
+
+  const handleReveal=()=>{setRevealed(true);};
+
+  const markResult=(correct)=>{
+    setQuizResult(correct?"correct":"wrong");
+    const next=new Set(wrongIds);
+    if(correct){next.delete(card.name);}else{next.add(card.name);}
+    setWrongIds(next);
+  };
+
+  const clearWrong=()=>{setWrongIds(new Set());setIdx(0);};
+
+  const switchMode=(m)=>{setMode(m);setIdx(0);setFlipped(false);setRevealed(false);setQuizResult(null);};
+
+  return (
+    <div style={{minHeight:"100vh",background:`radial-gradient(ellipse at 30% 20%,${rgba(card.hex,0.18)} 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,${rgba(card.hex,0.10)} 0%,transparent 50%),#FAF7F2`,display:"flex",flexDirection:"column",alignItems:"center",padding:"20px 16px 32px",fontFamily:"'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',Georgia,serif",transition:"background 0.6s"}}>
+
+      {/* Header */}
+      <div style={{textAlign:"center",marginBottom:10}}>
+        <div style={{fontSize:10,letterSpacing:"0.3em",color:"#B0A090",textTransform:"uppercase",marginBottom:2}}>Color Aptitude Test · Grade 2</div>
+        <div style={{fontSize:20,fontWeight:"bold",color:"#2A2010",letterSpacing:"0.08em"}}>慣用色名カード</div>
+        <div style={{fontSize:11,color:"#B0A090",marginTop:2}}>
+          {mode==="review"?`復習リスト ${list.length}色`:`${list.length}色 表示中 · 全${colors.length}色`}
+          {wrongIds.size>0&&<span style={{marginLeft:8,color:"#E05040"}}>● 要復習 {wrongIds.size}色</span>}
+        </div>
+      </div>
+
+      {/* Mode tabs */}
+      <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap",justifyContent:"center"}}>
+        {[["📖 学習","study"],["🎯 暗記","quiz"],["🔁 復習",`review`]].map(([l,v])=>(
+          <button key={v} onClick={()=>switchMode(v)} style={{padding:"5px 14px",borderRadius:20,border:`1.5px solid ${mode===v?"#5A3A20":"#DDD8CC"}`,background:mode===v?"#5A3A20":"white",color:mode===v?"white":(v==="review"&&wrongIds.size>0?"#E05040":"#888"),fontSize:12,cursor:"pointer",fontWeight:v==="review"&&wrongIds.size>0?"bold":"normal"}}>
+            {l}{v==="review"&&wrongIds.size>0?` (${wrongIds.size})`:""}
+          </button>
+        ))}
+      </div>
+
+      {/* Filters (学習モードのみ) */}
+      {mode==="study"&&<>
+        <div style={{display:"flex",gap:6,marginBottom:8}}>
+          {ORIGINS.map(o=><button key={o} onClick={()=>changeFilter("origin",o)} style={{padding:"4px 14px",borderRadius:16,border:`1.5px solid ${origin===o?"#2A2010":"#DDD8CC"}`,background:origin===o?"#2A2010":"white",color:origin===o?"white":"#777",fontSize:12,cursor:"pointer"}}>{o}</button>)}
+        </div>
+        <div style={{display:"flex",gap:5,flexWrap:"wrap",justifyContent:"center",marginBottom:12}}>
+          {CATEGORIES.map(c=><button key={c} onClick={()=>changeFilter("cat",c)} style={{padding:"3px 10px",borderRadius:12,border:`1px solid ${cat===c?"#8B6040":"#DDD8CC"}`,background:cat===c?"#8B6040":"white",color:cat===c?"white":"#999",fontSize:11,cursor:"pointer"}}>{c}</button>)}
+        </div>
+      </>}
+
+      {/* 復習リストが空の場合 */}
+      {mode==="review"&&wrongIds.size===0&&(
+        <div style={{width:"min(340px,92vw)",padding:"32px 24px",textAlign:"center",background:"white",borderRadius:20,boxShadow:"0 4px 24px rgba(0,0,0,0.06)",marginBottom:16}}>
+          <div style={{fontSize:32,marginBottom:12}}>🎉</div>
+          <div style={{fontSize:16,fontWeight:"bold",color:"#2A2010",marginBottom:8}}>復習リストは空です</div>
+          <div style={{fontSize:13,color:"#8B7A60"}}>暗記モードで間違えた色がここに溜まります</div>
+        </div>
+      )}
+
+      {/* Card */}
+      {(mode!=="review"||wrongIds.size>0)&&(
+        <div onClick={()=>{if(mode==="study")setFlipped(f=>!f);else if(mode==="quiz"&&!revealed)handleReveal();}} style={{width:"min(340px,92vw)",minHeight:440,borderRadius:24,background:card.hex,boxShadow:`0 24px 64px ${rgba(card.hex,0.45)},0 4px 16px rgba(0,0,0,0.10)`,cursor:(mode==="quiz"&&revealed)?"default":"pointer",position:"relative",overflow:"hidden",display:"flex",flexDirection:"column",justifyContent:"space-between",transform:animDir?"translateX("+(animDir==="left"?"-30px":"30px")+")":"none",opacity:animDir?0:1,transition:animDir?"transform 0.18s,opacity 0.18s":"box-shadow 0.4s,background 0.4s",
+          outline: quizResult==="correct"?"3px solid #44BB44":quizResult==="wrong"?"3px solid #EE4444":"none"
+        }}>
+          <div style={{position:"absolute",top:-40,right:-40,width:140,height:140,borderRadius:"50%",background:"rgba(255,255,255,0.07)",pointerEvents:"none"}}/>
+          <div style={{position:"absolute",bottom:-30,left:-30,width:100,height:100,borderRadius:"50%",background:"rgba(255,255,255,0.05)",pointerEvents:"none"}}/>
+
+          <div style={{display:"flex",justifyContent:"space-between",padding:"16px 18px 0",position:"relative",zIndex:1}}>
+            <div style={{background:card.origin==="和名"?"rgba(180,100,60,0.25)":"rgba(60,100,180,0.25)",border:`1px solid ${gbd}`,borderRadius:10,padding:"3px 10px",fontSize:10,color:card.origin==="和名"?(dark?"#FFCCA0":"#8B4513"):(dark?"#A0C8FF":"#1A3A8B"),letterSpacing:"0.1em"}}>{card.origin}</div>
+            <div style={{background:gb,border:`1px solid ${gbd}`,borderRadius:10,padding:"3px 10px",fontSize:10,color:ts,letterSpacing:"0.08em"}}>{card.category}</div>
+          </div>
+
+          <div style={{padding:"24px 24px 0",position:"relative",zIndex:1}}>
+            {(mode==="quiz"||mode==="review")&&!revealed?(
+              <div>
+                <div style={{width:80,height:80,borderRadius:16,background:"rgba(255,255,255,0.25)",border:`2px solid ${gbd}`,marginBottom:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>?</div>
+                <div style={{fontSize:14,color:ts}}>この色の名前は？</div>
+                <div style={{marginTop:12,fontSize:12,color:ts,background:gb,border:`1px solid ${gbd}`,borderRadius:10,padding:"6px 14px",display:"inline-block"}}>タップして答えを見る</div>
+              </div>
+            ):(
+              <div>
+                <div style={{fontSize:card.name.length>5?32:card.name.length>4?40:52,fontWeight:"bold",color:tp,lineHeight:1.1,letterSpacing:"0.05em",textShadow:dark?"0 2px 12px rgba(0,0,0,0.25)":"0 2px 8px rgba(255,255,255,0.6)"}}>{card.name}</div>
+                <div style={{fontSize:13,color:ts,marginTop:6,letterSpacing:"0.12em"}}>{card.reading}</div>
+              </div>
+            )}
+          </div>
+
+          <div style={{margin:"16px 24px",height:1,background:dark?"rgba(255,255,255,0.2)":"rgba(0,0,0,0.08)"}}/>
+
+          {mode==="study"&&!flipped&&(
+            <div style={{padding:"0 24px 28px",position:"relative",zIndex:1}}>
+              <div style={{fontSize:12,color:ts,marginBottom:10}}>タップして詳細を見る ↓</div>
+              <div style={{background:gb,border:`1px solid ${gbd}`,borderRadius:12,padding:"8px 14px",display:"inline-block"}}>
+                <span style={{fontSize:10,color:ts}}>系統色名　</span>
+                <span style={{fontSize:14,color:tp,fontWeight:"bold"}}>{card.systematic}</span>
+              </div>
+            </div>
+          )}
+          {(mode==="study"&&flipped)||((mode==="quiz"||mode==="review")&&revealed)?(
+            <div style={{padding:"0 24px 20px",display:"flex",flexDirection:"column",gap:8,position:"relative",zIndex:1}}>
+              <div style={{background:gb,border:`1px solid ${gbd}`,borderRadius:12,padding:"10px 14px"}}>
+                <div style={{fontSize:10,color:ts,marginBottom:3}}>系統色名</div>
+                <div style={{fontSize:14,color:tp,fontWeight:"bold"}}>{card.systematic}</div>
+              </div>
+              <div style={{background:gb,border:`1px solid ${gbd}`,borderRadius:12,padding:"10px 14px"}}>
+                <div style={{fontSize:10,color:ts,marginBottom:3}}>マンセル値</div>
+                <div style={{fontSize:13,color:tp,fontFamily:"monospace",fontWeight:"bold"}}>{card.munsell}</div>
+              </div>
+              <div style={{background:gb,border:`1px solid ${gbd}`,borderRadius:12,padding:"10px 14px"}}>
+                <div style={{fontSize:10,color:ts,marginBottom:3}}>エピソード・由来</div>
+                <div style={{fontSize:11,color:tp,lineHeight:1.7}}>{card.episode}</div>
+              </div>
+            </div>
+          ):((mode==="quiz"||mode==="review")&&!revealed)?(
+            <div style={{padding:"0 24px 28px"}}><div style={{fontSize:12,color:ts}}>タップして答えを確認</div></div>
+          ):null}
+        </div>
+      )}
+
+      {/* 正解・不正解ボタン（暗記・復習モードで答え表示後） */}
+      {(mode==="quiz"||mode==="review")&&revealed&&!quizResult&&(
+        <div style={{display:"flex",gap:12,marginTop:16,width:"min(340px,92vw)"}}>
+          <button onClick={()=>markResult(false)} style={{flex:1,padding:"12px 0",borderRadius:14,border:"2px solid #EE4444",background:"white",color:"#EE4444",fontSize:14,fontWeight:"bold",cursor:"pointer"}}>✗ 間違えた</button>
+          <button onClick={()=>markResult(true)} style={{flex:1,padding:"12px 0",borderRadius:14,border:"2px solid #44BB44",background:"white",color:"#44BB44",fontSize:14,fontWeight:"bold",cursor:"pointer"}}>○ 正解！</button>
+        </div>
+      )}
+      {(mode==="quiz"||mode==="review")&&quizResult&&(
+        <div style={{marginTop:12,padding:"8px 20px",borderRadius:12,background:quizResult==="correct"?"rgba(68,187,68,0.1)":"rgba(238,68,68,0.1)",border:`1px solid ${quizResult==="correct"?"#44BB44":"#EE4444"}`,fontSize:13,color:quizResult==="correct"?"#228822":"#CC2222",fontWeight:"bold"}}>
+          {quizResult==="correct"?"✓ 正解！リストから削除しました":"✗ 復習リストに追加しました"}
+        </div>
+      )}
+
+      {/* Navigation */}
+      {(mode!=="review"||wrongIds.size>0)&&(
+        <>
+          <div style={{display:"flex",alignItems:"center",gap:24,marginTop:16}}>
+            <button onClick={()=>go(-1)} style={{width:44,height:44,borderRadius:"50%",border:"1.5px solid #DDD8CC",background:"white",fontSize:18,cursor:"pointer",color:"#666",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>←</button>
+            <div style={{fontSize:14,color:"#8B7A60",fontWeight:"bold"}}>{(idx%list.length)+1} <span style={{fontSize:11,color:"#C0B090"}}>/ {list.length}</span></div>
+            <button onClick={()=>go(1)} style={{width:44,height:44,borderRadius:"50%",border:"1.5px solid #DDD8CC",background:"white",fontSize:18,cursor:"pointer",color:"#666",boxShadow:"0 2px 8px rgba(0,0,0,0.07)"}}>→</button>
+          </div>
+          <div style={{width:"min(340px,92vw)",height:3,background:"#EDE8E0",borderRadius:2,marginTop:12,overflow:"hidden"}}>
+            <div style={{height:"100%",borderRadius:2,background:card.hex,width:`${((idx%list.length)+1)/list.length*100}%`,transition:"width 0.3s",boxShadow:`0 0 6px ${rgba(card.hex,0.6)}`}}/>
+          </div>
+        </>
+      )}
+
+      {/* 復習リストクリアボタン */}
+      {mode==="review"&&wrongIds.size>0&&(
+        <button onClick={clearWrong} style={{marginTop:16,padding:"6px 20px",borderRadius:12,border:"1px solid #DDD8CC",background:"white",color:"#999",fontSize:11,cursor:"pointer"}}>
+          復習リストをリセット
+        </button>
+      )}
+
+      <div style={{marginTop:16,fontSize:10,color:"#C8C0B0",letterSpacing:"0.2em"}}>YUKA's Color Studio · Grade 2</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
